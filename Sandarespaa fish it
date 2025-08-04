@@ -1,0 +1,60 @@
+--// Rod class
+local Rod = {}
+Rod.__index = Rod
+
+function Rod.new(name, strength, speed, luck)
+    return setmetatable({
+        Name = name or "Basic Rod",
+        Strength = strength or 1.0,   -- determines how big fish you can catch
+        Speed = speed or 1.0,         -- affects how fast you catch fish
+        Luck = luck or 1.0            -- affects rarity
+    }, Rod)
+end
+
+function Rod:Upgrade(modifier)
+    self.Strength = self.Strength + (modifier.Strength or 0)
+    self.Speed = self.Speed + (modifier.Speed or 0)
+    self.Luck = self.Luck + (modifier.Luck or 0)
+end
+
+--// Rod Modifier
+local function CreateRodModifier(strengthMod, speedMod, luckMod)
+    return {
+        Strength = strengthMod or 0,
+        Speed = speedMod or 0,
+        Luck = luckMod or 0
+    }
+end
+
+--// Fishing System
+local function Fish(player, rod)
+    print(player.Name .. " is fishing with " .. rod.Name)
+
+    local waitTime = math.random(3, 6) / rod.Speed
+    print("Waiting " .. waitTime .. " seconds to catch a fish...")
+    wait(waitTime)
+
+    -- simulate catch
+    local catchChance = math.random()
+    local fishCaught
+    if catchChance < 0.1 * rod.Luck then
+        fishCaught = "Legendary Fish"
+    elseif catchChance < 0.3 * rod.Luck then
+        fishCaught = "Rare Fish"
+    else
+        fishCaught = "Common Fish"
+    end
+
+    print(player.Name .. " caught a " .. fishCaught .. " using " .. rod.Name)
+end
+
+--// Example Usage
+local player = { Name = "Player1" }
+
+local myRod = Rod.new("Starter Rod", 1.0, 1.0, 1.0)
+local modifier = CreateRodModifier(0.5, 0.2, 0.3)
+
+print("Upgrading rod...")
+myRod:Upgrade(modifier)
+
+Fish(player, myRod)
