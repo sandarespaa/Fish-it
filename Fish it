@@ -1,0 +1,128 @@
+-- // Player and Rod Data
+local player = game.Players.LocalPlayer
+
+local Rod = {
+	Name = "Starter Rod",
+	Strength = 1.0,
+	Speed = 1.0,
+	Luck = 1.0
+}
+
+-- Function to upgrade rod
+local function ApplyModifier(strMod, spdMod, luckMod)
+	Rod.Strength += strMod or 0
+	Rod.Speed += spdMod or 0
+	Rod.Luck += luckMod or 0
+end
+
+-- Function to simulate fishing
+local function Fish()
+	local waitTime = math.random(3, 6) / Rod.Speed
+	Rayfield:Notify({
+		Title = "Fishing...",
+		Content = "Waiting for " .. string.format("%.1f", waitTime) .. " seconds...",
+		Duration = waitTime,
+		Image = 4483362458
+	})
+	task.wait(waitTime)
+
+	local chance = math.random()
+	local rarity
+
+	if chance < 0.1 * Rod.Luck then
+		rarity = "🎣 Legendary Fish"
+	elseif chance < 0.3 * Rod.Luck then
+		rarity = "🐟 Rare Fish"
+	else
+		rarity = "🐠 Common Fish"
+	end
+
+	Rayfield:Notify({
+		Title = "Catch Success!",
+		Content = "You caught a " .. rarity,
+		Duration = 4,
+		Image = 4483362458
+	})
+end
+
+-- // Rayfield UI
+local Window = Rayfield:CreateWindow({
+	Name = "Fish It GUI",
+	LoadingTitle = "Fish It",
+	LoadingSubtitle = "by YourName",
+	ConfigurationSaving = {
+		Enabled = false,
+	},
+	Discord = {
+		Enabled = false
+	},
+	KeySystem = false
+})
+
+local MainTab = Window:CreateTab("🎣 Rod Control", 4483362458)
+
+-- Display current rod stats
+MainTab:CreateParagraph({ Title = "Current Rod Stats", Content = "" })
+
+local function updateRodInfo()
+	MainTab.Components[1].Set({Content = 
+		"Name: " .. Rod.Name ..
+		"\nStrength: " .. Rod.Strength ..
+		"\nSpeed: " .. Rod.Speed ..
+		"\nLuck: " .. Rod.Luck
+	})
+end
+updateRodInfo()
+
+-- Sliders for Modifier Input
+local strMod, spdMod, luckMod = 0, 0, 0
+
+MainTab:CreateSlider({
+	Name = "Strength Modifier",
+	Range = {0, 5},
+	Increment = 0.1,
+	Suffix = "+",
+	CurrentValue = 0,
+	Callback = function(Value)
+		strMod = Value
+	end,
+})
+
+MainTab:CreateSlider({
+	Name = "Speed Modifier",
+	Range = {0, 5},
+	Increment = 0.1,
+	Suffix = "+",
+	CurrentValue = 0,
+	Callback = function(Value)
+		spdMod = Value
+	end,
+})
+
+MainTab:CreateSlider({
+	Name = "Luck Modifier",
+	Range = {0, 5},
+	Increment = 0.1,
+	Suffix = "+",
+	CurrentValue = 0,
+	Callback = function(Value)
+		luckMod = Value
+	end,
+})
+
+-- Apply Modifier Button
+MainTab:CreateButton({
+	Name = "Apply Modifier to Rod",
+	Callback = function()
+		ApplyModifier(strMod, spdMod, luckMod)
+		updateRodInfo()
+	end,
+})
+
+-- Fish Button
+MainTab:CreateButton({
+	Name = "🎣 Fish Now!",
+	Callback = function()
+		Fish()
+	end,
+})
